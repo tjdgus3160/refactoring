@@ -1,6 +1,6 @@
 import invoice from "./data/invoices.json";
 import plays from "./data/plays.json";
-import { Invoice, Plays, Performance, Play } from "../../@types";
+import { Invoice, Performance } from "../../@types";
 
 export function statement(invoice: Invoice) {
   let totalAmount = 0;
@@ -13,13 +13,8 @@ export function statement(invoice: Invoice) {
     totalAmount += amountFor(perf);
   }
 
-  let volumeCredits = 0;
-  for (let perf of invoice.performances) {
-    volumeCredits += volumeCreditsFor(perf);
-  }
-
   result += `총액: ${usd(totalAmount)}\n`;
-  result += `적립 포인트: ${volumeCredits}점\n`;
+  result += `적립 포인트: ${totalVolumeCredits(invoice)}점\n`;
 
   return result;
 }
@@ -70,6 +65,14 @@ function usd(aNumber: number) {
     currency: "USD",
     minimumFractionDigits: 2,
   }).format(aNumber / 100);
+}
+
+function totalVolumeCredits(invoice: Invoice) {
+  let result = 0;
+  for (let perf of invoice.performances) {
+    result += volumeCreditsFor(perf);
+  }
+  return result;
 }
 
 console.log(statement(invoice[0]));
