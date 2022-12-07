@@ -16,3 +16,8 @@ export interface Play {
   name: string;
   type: "tragedy" | "comedy";
 }
+
+export interface StatementData {
+  customer: string;
+  performances: Performance[];
+}
