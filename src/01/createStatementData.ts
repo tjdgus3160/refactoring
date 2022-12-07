@@ -1,4 +1,4 @@
-import { Invoice, StatementData, Performance } from "../../@types";
+import { Invoice, StatementData, Performance, Play } from "../../@types";
 import plays from "./data/plays.json";
 import PerformanceCalculator from "./PerformanceCalculator";
 
@@ -15,7 +15,7 @@ export default function createStatementData(invoice: Invoice) {
 }
 
 function enrichPerformance(aPerformance: Performance): Performance {
-  const { play, amount, volumeCredits } = new PerformanceCalculator(
+  const { play, amount, volumeCredits } = createPerformanceCalculator(
     aPerformance,
     playFor(aPerformance)
   );
@@ -26,6 +26,10 @@ function enrichPerformance(aPerformance: Performance): Performance {
     amount,
     volumeCredits,
   };
+}
+
+function createPerformanceCalculator(aPerformance: Performance, aPlay: Play) {
+  return new PerformanceCalculator(aPerformance, aPlay);
 }
 
 function totalAmount(data: StatementData) {
