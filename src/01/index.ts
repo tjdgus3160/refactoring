@@ -1,17 +1,6 @@
-import invoice from "./invoices.json";
-import plays from "./plays.json";
-
-export interface Invoice {
-  customer: string;
-  performances: { playID: string; audience: number }[];
-}
-
-export interface Plays {
-  [key: string]: {
-    name: string;
-    type: "tragedy" | "comedy";
-  };
-}
+import invoice from "./data/invoices.json";
+import plays from "./data/plays.json";
+import { Invoice, Plays } from "../../@types";
 
 export function statement(invoice: Invoice, plays: Plays) {
   let totalAmount = 0;
