@@ -1,5 +1,4 @@
 import invoices from "./data/invoices.json";
-import plays from "./data/plays.json";
 import { Invoice, StatementData } from "../../@types";
 import createStatementData from "./createStatementData";
 

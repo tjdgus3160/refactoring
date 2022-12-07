@@ -1,6 +1,6 @@
 import invoices from "../src/01/data/invoices.json";
 import plays from "../src/01/data/plays.json";
-import { htmlStatement, statement } from "../src/01/index";
+import { htmlStatement, statement } from "../src/01/statement";
 import { Plays } from "../@types";
 
 describe("연극 비용 책정", () => {
