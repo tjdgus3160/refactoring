@@ -1,6 +1,6 @@
 import invoice from "./data/invoices.json";
 import plays from "./data/plays.json";
-import { Invoice, Plays } from "../../@types";
+import { Invoice, Plays, Performance, Play } from "../../@types";
 
 export function statement(invoice: Invoice, plays: Plays) {
   let totalAmount = 0;
@@ -14,13 +14,13 @@ export function statement(invoice: Invoice, plays: Plays) {
   }).format;
 
   for (let perf of invoice.performances) {
-    const play = plays[perf.playID];
-    let thisAmount = amountFor(perf, play);
+    let thisAmount = amountFor(perf);
 
     volumeCredits += Math.max(perf.audience - 30, 0);
-    if (play.type === "comedy") volumeCredits += Math.floor(perf.audience / 5);
+    if (playFor(perf).type === "comedy")
+      volumeCredits += Math.floor(perf.audience / 5);
 
-    result += `  ${play.name}: ${format(thisAmount / 100)} (${
+    result += `  ${playFor(perf).name}: ${format(thisAmount / 100)} (${
       perf.audience
     }석)\n`;
     totalAmount += thisAmount;
@@ -30,10 +30,10 @@ export function statement(invoice: Invoice, plays: Plays) {
   return result;
 }
 
-function amountFor(aPerformance, play) {
+function amountFor(aPerformance: Performance) {
   let result = 0;
 
-  switch (play.type) {
+  switch (playFor(aPerformance).type) {
     case "tragedy":
       result = 40000;
       if (aPerformance.audience > 30) {
@@ -48,10 +48,14 @@ function amountFor(aPerformance, play) {
       result += 300 * aPerformance.audience;
       break;
     default:
-      throw new Error(`알 수 없는 장르: ${play.type}`);
+      throw new Error(`알 수 없는 장르: ${playFor(aPerformance).type}`);
   }
 
   return result;
+}
+
+function playFor(aPerformance: Performance) {
+  return plays[aPerformance.playID];
 }
 
 console.log(statement(invoice[0], plays as Plays));
