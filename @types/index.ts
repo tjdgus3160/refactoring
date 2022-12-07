@@ -1,11 +1,14 @@
 export interface Invoice {
   customer: string;
-  performances: Performance[];
+  performances: Pick<Performance, "playID" | "audience">[];
 }
 
 export interface Performance {
   playID: string;
   audience: number;
+  play: Play;
+  amount: number;
+  volumeCredits: number;
 }
 
 export interface Plays {
@@ -20,4 +23,6 @@ export interface Play {
 export interface StatementData {
   customer: string;
   performances: Performance[];
+  totalAmount?: number;
+  totalVolumeCredits?: number;
 }

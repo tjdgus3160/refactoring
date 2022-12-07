@@ -1,12 +1,15 @@
-import invoice from "./data/invoices.json";
+import invoices from "./data/invoices.json";
 import plays from "./data/plays.json";
-import { Invoice, Performance, StatementData } from "../../@types";
+import { Invoice, Performance, Play, StatementData } from "../../@types";
 
 export function statement(invoice: Invoice) {
   const statementData: StatementData = {
     customer: invoice.customer,
     performances: invoice.performances.map(enrichPerformance),
   };
+
+  statementData.totalAmount = totalAmount(statementData);
+  statementData.totalVolumeCredits = totalVolumeCredits(statementData);
   return renderPlainText(statementData);
 }
 
@@ -14,37 +17,19 @@ function renderPlainText(data: StatementData) {
   let result = `청구 내역 (고객명: ${data.customer})\n`;
 
   for (let perf of data.performances) {
-    result += `  ${playFor(perf).name}: ${usd(amountFor(perf))} (${
-      perf.audience
-    }석)\n`;
+    result += `  ${perf.play.name}: ${usd(perf.amount)} (${perf.audience}석)\n`;
   }
 
-  result += `총액: ${usd(totalAmount())}\n`;
-  result += `적립 포인트: ${totalVolumeCredits()}점\n`;
+  result += `총액: ${usd(data.totalAmount)}\n`;
+  result += `적립 포인트: ${data.totalVolumeCredits}점\n`;
 
   return result;
-
-  function totalVolumeCredits() {
-    let result = 0;
-    for (let perf of data.performances) {
-      result += volumeCreditsFor(perf);
-    }
-    return result;
-  }
-
-  function totalAmount() {
-    let result = 0;
-    for (let perf of data.performances) {
-      result += amountFor(perf);
-    }
-    return result;
-  }
 }
 
 function amountFor(aPerformance: Performance) {
   let result = 0;
 
-  switch (playFor(aPerformance).type) {
+  switch (aPerformance.play.type) {
     case "tragedy":
       result = 40000;
       if (aPerformance.audience > 30) {
@@ -59,7 +44,7 @@ function amountFor(aPerformance: Performance) {
       result += 300 * aPerformance.audience;
       break;
     default:
-      throw new Error(`알 수 없는 장르: ${playFor(aPerformance).type}`);
+      throw new Error(`알 수 없는 장르: ${aPerformance.play.type}`);
   }
 
   return result;
@@ -74,7 +59,7 @@ function volumeCreditsFor(aPerformance: Performance) {
 
   result += Math.max(aPerformance.audience - 30, 0);
 
-  if (playFor(aPerformance).type === "comedy") {
+  if (aPerformance.play.type === "comedy") {
     result += Math.floor(aPerformance.audience / 5);
   }
 
@@ -89,8 +74,30 @@ function usd(aNumber: number) {
   }).format(aNumber / 100);
 }
 
-function enrichPerformance(aPerformance: Performance) {
-  return Object.assign({}, aPerformance);
+function enrichPerformance(aPerformance: Performance): Performance {
+  const result: any = Object.assign({}, aPerformance);
+
+  result.play = playFor(result);
+  result.amount = amountFor(result);
+  result.volumeCredits = volumeCreditsFor(result);
+
+  return result;
 }
 
-console.log(statement(invoice[0]));
+function totalVolumeCredits(data: StatementData) {
+  let result = 0;
+  for (let perf of data.performances) {
+    result += perf.volumeCredits;
+  }
+  return result;
+}
+
+function totalAmount(data: StatementData) {
+  let result = 0;
+  for (let perf of data.performances) {
+    result += perf.amount;
+  }
+  return result;
+}
+
+console.log(statement(invoices[0]));
