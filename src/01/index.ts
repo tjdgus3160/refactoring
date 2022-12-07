@@ -5,7 +5,7 @@ import { Invoice, Performance, StatementData } from "../../@types";
 export function statement(invoice: Invoice) {
   const statementData: StatementData = {
     customer: invoice.customer,
-    performances: invoice.performances,
+    performances: invoice.performances.map(enrichPerformance),
   };
   return renderPlainText(statementData);
 }
@@ -87,6 +87,10 @@ function usd(aNumber: number) {
     currency: "USD",
     minimumFractionDigits: 2,
   }).format(aNumber / 100);
+}
+
+function enrichPerformance(aPerformance: Performance) {
+  return Object.assign({}, aPerformance);
 }
 
 console.log(statement(invoice[0]));
