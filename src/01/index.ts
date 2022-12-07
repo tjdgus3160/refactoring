@@ -1,24 +1,44 @@
 import invoice from "./data/invoices.json";
 import plays from "./data/plays.json";
-import { Invoice, Performance } from "../../@types";
+import { Invoice, Performance, StatementData } from "../../@types";
 
 export function statement(invoice: Invoice) {
-  return renderPlainText(invoice);
+  const statementData: StatementData = {
+    customer: invoice.customer,
+    performances: invoice.performances,
+  };
+  return renderPlainText(statementData);
 }
 
-function renderPlainText(invoice: Invoice) {
-  let result = `청구 내역 (고객명: ${invoice.customer})\n`;
+function renderPlainText(data: StatementData) {
+  let result = `청구 내역 (고객명: ${data.customer})\n`;
 
-  for (let perf of invoice.performances) {
+  for (let perf of data.performances) {
     result += `  ${playFor(perf).name}: ${usd(amountFor(perf))} (${
       perf.audience
     }석)\n`;
   }
 
-  result += `총액: ${usd(totalAmount(invoice))}\n`;
-  result += `적립 포인트: ${totalVolumeCredits(invoice)}점\n`;
+  result += `총액: ${usd(totalAmount())}\n`;
+  result += `적립 포인트: ${totalVolumeCredits()}점\n`;
 
   return result;
+
+  function totalVolumeCredits() {
+    let result = 0;
+    for (let perf of data.performances) {
+      result += volumeCreditsFor(perf);
+    }
+    return result;
+  }
+
+  function totalAmount() {
+    let result = 0;
+    for (let perf of data.performances) {
+      result += amountFor(perf);
+    }
+    return result;
+  }
 }
 
 function amountFor(aPerformance: Performance) {
@@ -67,22 +87,6 @@ function usd(aNumber: number) {
     currency: "USD",
     minimumFractionDigits: 2,
   }).format(aNumber / 100);
-}
-
-function totalVolumeCredits(invoice: Invoice) {
-  let result = 0;
-  for (let perf of invoice.performances) {
-    result += volumeCreditsFor(perf);
-  }
-  return result;
-}
-
-function totalAmount(invoice: Invoice) {
-  let result = 0;
-  for (let perf of invoice.performances) {
-    result += amountFor(perf);
-  }
-  return result;
 }
 
 console.log(statement(invoice[0]));
