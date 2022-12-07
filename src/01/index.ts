@@ -14,11 +14,7 @@ export function statement(invoice: Invoice, plays: Plays) {
   }).format;
 
   for (let perf of invoice.performances) {
-    volumeCredits += Math.max(perf.audience - 30, 0);
-
-    if (playFor(perf).type === "comedy") {
-      volumeCredits += Math.floor(perf.audience / 5);
-    }
+    volumeCredits += volumeCreditsFor(perf);
 
     result += `  ${playFor(perf).name}: ${format(amountFor(perf) / 100)} (${
       perf.audience
@@ -58,6 +54,18 @@ function amountFor(aPerformance: Performance) {
 
 function playFor(aPerformance: Performance) {
   return plays[aPerformance.playID];
+}
+
+function volumeCreditsFor(aPerformance: Performance) {
+  let result = 0;
+
+  result += Math.max(aPerformance.audience - 30, 0);
+
+  if (playFor(aPerformance).type === "comedy") {
+    result += Math.floor(aPerformance.audience / 5);
+  }
+
+  return result;
 }
 
 console.log(statement(invoice[0], plays as Plays));
